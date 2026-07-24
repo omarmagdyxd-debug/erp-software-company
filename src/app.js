@@ -8,10 +8,14 @@ const User = require('./models/User');
 const Account = require('./models/Account');
 const JournalEntry = require('./models/JournalEntry');
 const Client = require('./models/Client');
+const Partner = require('./models/Partner');
+const Project = require('./models/Project');
 
 const authRoutes = require('./routes/auth');
 const accountRoutes = require('./routes/accounts');
 const clientRoutes = require('./routes/clients');
+const partnerRoutes = require('./routes/partners');
+const projectRoutes = require('./routes/projects');
 
 const app = express();
 
@@ -22,6 +26,8 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use('/api/auth', authRoutes);
 app.use('/api/accounts', accountRoutes);
 app.use('/api/clients', clientRoutes);
+app.use('/api/partners', partnerRoutes);
+app.use('/api/projects', projectRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'ERP Software Company API is running' });
