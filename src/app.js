@@ -10,12 +10,36 @@ const JournalEntry = require('./models/JournalEntry');
 const Client = require('./models/Client');
 const Partner = require('./models/Partner');
 const Project = require('./models/Project');
+const Revenue = require('./models/Revenue');
+const Expense = require('./models/Expense');
+const Custody = require('./models/Custody');
+const Employee = require('./models/Employee');
+const Payroll = require('./models/Payroll');
+const FixedAsset = require('./models/FixedAsset');
+const PartnerTransaction = require('./models/PartnerTransaction');
+
+Project.belongsTo(Client, { foreignKey: 'clientId' });
+Project.belongsTo(Partner, { foreignKey: 'partnerId' });
+Client.hasMany(Project, { foreignKey: 'clientId' });
+Partner.hasMany(Project, { foreignKey: 'partnerId' });
+Revenue.belongsTo(Client, { foreignKey: 'clientId' });
+Revenue.belongsTo(Project, { foreignKey: 'projectId' });
+Expense.belongsTo(Project, { foreignKey: 'projectId' });
+Payroll.belongsTo(Employee, { foreignKey: 'employeeId' });
+Employee.hasMany(Payroll, { foreignKey: 'employeeId' });
 
 const authRoutes = require('./routes/auth');
 const accountRoutes = require('./routes/accounts');
 const clientRoutes = require('./routes/clients');
 const partnerRoutes = require('./routes/partners');
 const projectRoutes = require('./routes/projects');
+const revenueRoutes = require('./routes/revenue');
+const expenseRoutes = require('./routes/expenses');
+const custodyRoutes = require('./routes/custody');
+const employeeRoutes = require('./routes/employees');
+const payrollRoutes = require('./routes/payroll');
+const fixedAssetRoutes = require('./routes/fixedAssets');
+const partnerAccountRoutes = require('./routes/partnerAccount');
 
 const app = express();
 
@@ -28,6 +52,13 @@ app.use('/api/accounts', accountRoutes);
 app.use('/api/clients', clientRoutes);
 app.use('/api/partners', partnerRoutes);
 app.use('/api/projects', projectRoutes);
+app.use('/api/revenue', revenueRoutes);
+app.use('/api/expenses', expenseRoutes);
+app.use('/api/custody', custodyRoutes);
+app.use('/api/employees', employeeRoutes);
+app.use('/api/payroll', payrollRoutes);
+app.use('/api/fixed-assets', fixedAssetRoutes);
+app.use('/api/partner-account', partnerAccountRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'ERP Software Company API is running' });
