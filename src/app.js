@@ -7,9 +7,11 @@ const sequelize = require('./config/database');
 const User = require('./models/User');
 const Account = require('./models/Account');
 const JournalEntry = require('./models/JournalEntry');
+const Client = require('./models/Client');
 
 const authRoutes = require('./routes/auth');
 const accountRoutes = require('./routes/accounts');
+const clientRoutes = require('./routes/clients');
 
 const app = express();
 
@@ -19,6 +21,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/accounts', accountRoutes);
+app.use('/api/clients', clientRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'ERP Software Company API is running' });
@@ -26,7 +29,7 @@ app.get('/api/health', (req, res) => {
 
 const PORT = process.env.PORT || 3001;
 
-sequelize.sync({ alter: true })
+sequelize.sync({ alter: false })
   .then(() => {
     console.log('Database connected and synced');
     app.listen(PORT, () => {
