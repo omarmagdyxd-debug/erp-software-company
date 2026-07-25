@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ERP - Dashboard</title>
   <link rel="stylesheet" href="/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
   <div class="sidebar">
@@ -596,7 +599,7 @@ const headers = getHeaders();
       } else if (section === 'reports') {
         document.getElementById('pageTitle').textContent = 'Reports';
         content.innerHTML = `
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem">
             <div style="background:#f8f9fa;padding:1.5rem;border-radius:8px;border:1px solid #dee2e6">
               <h4 style="margin-bottom:1rem;color:#1a1a2e">Financial Summary</h4>
               <div id="financialReport">Loading...</div>
@@ -612,6 +615,53 @@ const headers = getHeaders();
             <div style="background:#f8f9fa;padding:1.5rem;border-radius:8px;border:1px solid #dee2e6">
               <h4 style="margin-bottom:1rem;color:#1a1a2e">Partner Account</h4>
               <div id="partnerReport">Loading...</div>
+            </div>
+          </div>
+          <div style="background:#f8f9fa;padding:1.5rem;border-radius:8px;border:1px solid #dee2e6">
+            <h4 style="margin-bottom:1rem;color:#1a1a2e">📤 Export Data</h4>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem">
+              <div style="background:white;padding:1rem;border-radius:8px;border:1px solid #dee2e6">
+                <div style="font-weight:600;margin-bottom:0.75rem">💰 Revenue</div>
+                <div style="display:flex;gap:0.5rem">
+                  <button onclick="exportRevenue('pdf')" style="background:#e63946;color:white;border:none;padding:0.4rem 0.75rem;border-radius:6px;cursor:pointer;font-size:0.8rem">PDF</button>
+                  <button onclick="exportRevenue('excel')" style="background:#28a745;color:white;border:none;padding:0.4rem 0.75rem;border-radius:6px;cursor:pointer;font-size:0.8rem">Excel</button>
+                </div>
+              </div>
+              <div style="background:white;padding:1rem;border-radius:8px;border:1px solid #dee2e6">
+                <div style="font-weight:600;margin-bottom:0.75rem">💸 Expenses</div>
+                <div style="display:flex;gap:0.5rem">
+                  <button onclick="exportExpenses('pdf')" style="background:#e63946;color:white;border:none;padding:0.4rem 0.75rem;border-radius:6px;cursor:pointer;font-size:0.8rem">PDF</button>
+                  <button onclick="exportExpenses('excel')" style="background:#28a745;color:white;border:none;padding:0.4rem 0.75rem;border-radius:6px;cursor:pointer;font-size:0.8rem">Excel</button>
+                </div>
+              </div>
+              <div style="background:white;padding:1rem;border-radius:8px;border:1px solid #dee2e6">
+                <div style="font-weight:600;margin-bottom:0.75rem">👥 Clients</div>
+                <div style="display:flex;gap:0.5rem">
+                  <button onclick="exportClients('pdf')" style="background:#e63946;color:white;border:none;padding:0.4rem 0.75rem;border-radius:6px;cursor:pointer;font-size:0.8rem">PDF</button>
+                  <button onclick="exportClients('excel')" style="background:#28a745;color:white;border:none;padding:0.4rem 0.75rem;border-radius:6px;cursor:pointer;font-size:0.8rem">Excel</button>
+                </div>
+              </div>
+              <div style="background:white;padding:1rem;border-radius:8px;border:1px solid #dee2e6">
+                <div style="font-weight:600;margin-bottom:0.75rem">📁 Projects</div>
+                <div style="display:flex;gap:0.5rem">
+                  <button onclick="exportProjects('pdf')" style="background:#e63946;color:white;border:none;padding:0.4rem 0.75rem;border-radius:6px;cursor:pointer;font-size:0.8rem">PDF</button>
+                  <button onclick="exportProjects('excel')" style="background:#28a745;color:white;border:none;padding:0.4rem 0.75rem;border-radius:6px;cursor:pointer;font-size:0.8rem">Excel</button>
+                </div>
+              </div>
+              <div style="background:white;padding:1rem;border-radius:8px;border:1px solid #dee2e6">
+                <div style="font-weight:600;margin-bottom:0.75rem">👔 Employees</div>
+                <div style="display:flex;gap:0.5rem">
+                  <button onclick="exportEmployees('pdf')" style="background:#e63946;color:white;border:none;padding:0.4rem 0.75rem;border-radius:6px;cursor:pointer;font-size:0.8rem">PDF</button>
+                  <button onclick="exportEmployees('excel')" style="background:#28a745;color:white;border:none;padding:0.4rem 0.75rem;border-radius:6px;cursor:pointer;font-size:0.8rem">Excel</button>
+                </div>
+              </div>
+              <div style="background:white;padding:1rem;border-radius:8px;border:1px solid #dee2e6">
+                <div style="font-weight:600;margin-bottom:0.75rem">💵 Payroll</div>
+                <div style="display:flex;gap:0.5rem">
+                  <button onclick="exportPayroll('pdf')" style="background:#e63946;color:white;border:none;padding:0.4rem 0.75rem;border-radius:6px;cursor:pointer;font-size:0.8rem">PDF</button>
+                  <button onclick="exportPayroll('excel')" style="background:#28a745;color:white;border:none;padding:0.4rem 0.75rem;border-radius:6px;cursor:pointer;font-size:0.8rem">Excel</button>
+                </div>
+              </div>
             </div>
           </div>`;
         loadReports();
@@ -1109,6 +1159,84 @@ const headers = getHeaders();
       if (!confirm('Delete this cost?')) return;
       await fetch(`${API}/project-costs/${id}`, { method: 'DELETE', headers: getHeaders() });
       loadProjectCosts(projectId);
+    }
+
+    function exportTableToPDF(title, headers, rows) {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(16);
+      doc.text(title, 14, 15);
+      doc.setFontSize(10);
+      doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, 22);
+      doc.autoTable({
+        head: [headers],
+        body: rows,
+        startY: 28,
+        styles: { fontSize: 9 },
+        headStyles: { fillColor: [67, 97, 238] }
+      });
+      doc.save(`${title}.pdf`);
+    }
+
+    function exportTableToExcel(title, headers, rows) {
+      const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, title);
+      XLSX.writeFile(wb, `${title}.xlsx`);
+    }
+
+    async function exportRevenue(format) {
+      const res = await fetch(`${API}/revenue`, { headers: getHeaders() });
+      const data = await res.json();
+      const headers = ['Date', 'Amount', 'Source', 'Client', 'Project', 'Description'];
+      const rows = data.map(r => [r.date, parseFloat(r.amount).toLocaleString(), r.source, r.Client?.name||'-', r.Project?.name||'-', r.description||'-']);
+      if (format === 'pdf') exportTableToPDF('Revenue Report', headers, rows);
+      else exportTableToExcel('Revenue', headers, rows);
+    }
+
+    async function exportExpenses(format) {
+      const res = await fetch(`${API}/expenses`, { headers: getHeaders() });
+      const data = await res.json();
+      const headers = ['Date', 'Amount', 'Category', 'Source', 'Description'];
+      const rows = data.map(e => [e.date, parseFloat(e.amount).toLocaleString(), e.category, e.source, e.description]);
+      if (format === 'pdf') exportTableToPDF('Expenses Report', headers, rows);
+      else exportTableToExcel('Expenses', headers, rows);
+    }
+
+    async function exportClients(format) {
+      const res = await fetch(`${API}/clients`, { headers: getHeaders() });
+      const data = await res.json();
+      const headers = ['Name', 'Phone', 'Email', 'Company'];
+      const rows = data.map(c => [c.name, c.phone||'-', c.email||'-', c.company||'-']);
+      if (format === 'pdf') exportTableToPDF('Clients Report', headers, rows);
+      else exportTableToExcel('Clients', headers, rows);
+    }
+
+    async function exportEmployees(format) {
+      const res = await fetch(`${API}/employees`, { headers: getHeaders() });
+      const data = await res.json();
+      const headers = ['Name', 'Position', 'Phone', 'Base Salary', 'Hire Date'];
+      const rows = data.map(e => [e.name, e.position||'-', e.phone||'-', parseFloat(e.baseSalary).toLocaleString(), e.hireDate||'-']);
+      if (format === 'pdf') exportTableToPDF('Employees Report', headers, rows);
+      else exportTableToExcel('Employees', headers, rows);
+    }
+
+    async function exportProjects(format) {
+      const res = await fetch(`${API}/projects`, { headers: getHeaders() });
+      const data = await res.json();
+      const headers = ['Name', 'Client', 'Partner', 'Contract Value', 'Status'];
+      const rows = data.map(p => [p.name, p.Client?.name||'-', p.Partner?.name||'-', p.hasContract ? parseFloat(p.contractValue).toLocaleString() : 'No Contract', p.status]);
+      if (format === 'pdf') exportTableToPDF('Projects Report', headers, rows);
+      else exportTableToExcel('Projects', headers, rows);
+    }
+
+    async function exportPayroll(format) {
+      const res = await fetch(`${API}/payroll`, { headers: getHeaders() });
+      const data = await res.json();
+      const headers = ['Employee', 'Month', 'Base Salary', 'Net Salary', 'Status'];
+      const rows = data.map(p => [p.Employee?.name||'-', p.month, parseFloat(p.baseSalary).toLocaleString(), parseFloat(p.netSalary).toLocaleString(), p.status]);
+      if (format === 'pdf') exportTableToPDF('Payroll Report', headers, rows);
+      else exportTableToExcel('Payroll', headers, rows);
     }
 
     function logout() {
