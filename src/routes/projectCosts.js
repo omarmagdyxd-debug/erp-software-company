@@ -1,17 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const Expense = require('../models/Expense');
-const Project = require('../models/Project');
+const ProjectCost = require('../models/ProjectCost');
 const JournalEntry = require('../models/JournalEntry');
 const authMiddleware = require('../middleware/auth');
 
-router.get('/', authMiddleware, async (req, res) => {
+router.get('/project/:projectId', authMiddleware, async (req, res) => {
   try {
-    const expenses = await Expense.findAll({
-      include: [{ model: Project, attributes: ['id', 'name'] }],
+    const costs = await ProjectCost.findAll({
+      where: { projectId: req.params.projectId },
       order: [['date', 'DESC']]
     });
-    res.json(expenses);
+    res.json(costs);
   } catch (err) {
     res.status(500).json({ message: 'خطأ في السيرفر' });
   }
@@ -19,40 +18,28 @@ router.get('/', authMiddleware, async (req, res) => {
 
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const expense = await Expense.create(req.body);
+    const cost = await ProjectCost.create(req.body);
 
     await JournalEntry.create({
-      date: expense.date,
-      description: expense.description || 'مصروف',
+      date: cost.date,
+      description: `Project Cost - ${cost.description}`,
       debitAccountId: 20,
       creditAccountId: 3,
-      amount: expense.amount,
+      amount: cost.amount,
       type: 'expense',
-      relatedId: expense.id,
+      relatedId: cost.id,
       createdBy: req.user.id
     });
 
-    if (expense.projectId) {
-      const ProjectCost = require('../models/ProjectCost');
-      await ProjectCost.create({
-        projectId: expense.projectId,
-        date: expense.date,
-        amount: expense.amount,
-        category: expense.category || 'other',
-        source: expense.source,
-        description: expense.description
-      });
-    }
-
-    res.json(expense);
+    res.json(cost);
   } catch (err) {
-    res.status(500).json({ message: 'خطأ في تسجيل المصروف' });
+    res.status(500).json({ message: 'خطأ في تسجيل التكلفة' });
   }
 });
 
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
-    await Expense.update(req.body, { where: { id: req.params.id } });
+    await ProjectCost.update(req.body, { where: { id: req.params.id } });
     res.json({ message: 'تم التحديث' });
   } catch (err) {
     res.status(500).json({ message: 'خطأ في التحديث' });
@@ -62,7 +49,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     await JournalEntry.destroy({ where: { type: 'expense', relatedId: req.params.id } });
-    await Expense.destroy({ where: { id: req.params.id } });
+    await ProjectCost.destroy({ where: { id: req.params.id } });
     res.json({ message: 'تم الحذف' });
   } catch (err) {
     res.status(500).json({ message: 'خطأ في الحذف' });

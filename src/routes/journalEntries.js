@@ -22,6 +22,19 @@ router.get('/', authMiddleware, async (req, res) => {
 router.post('/', authMiddleware, async (req, res) => {
   try {
     const entry = await JournalEntry.create({ ...req.body, createdBy: req.user.id });
+
+    if (req.body.projectId) {
+      const ProjectCost = require('../models/ProjectCost');
+      await ProjectCost.create({
+        projectId: req.body.projectId,
+        date: req.body.date,
+        amount: req.body.amount,
+        category: 'other',
+        source: 'instapay',
+        description: req.body.description
+      });
+    }
+
     res.json(entry);
   } catch (err) {
     res.status(500).json({ message: 'خطأ في تسجيل القيد' });

@@ -18,6 +18,7 @@ const Payroll = require('./models/Payroll');
 const FixedAsset = require('./models/FixedAsset');
 const PartnerTransaction = require('./models/PartnerTransaction');
 const Installment = require('./models/Installment');
+const ProjectCost = require('./models/ProjectCost');
 
 JournalEntry.belongsTo(Account, { as: 'DebitAccount', foreignKey: 'debitAccountId' });
 JournalEntry.belongsTo(Account, { as: 'CreditAccount', foreignKey: 'creditAccountId' });
@@ -32,6 +33,8 @@ Payroll.belongsTo(Employee, { foreignKey: 'employeeId' });
 Employee.hasMany(Payroll, { foreignKey: 'employeeId' });
 Project.hasMany(Installment, { foreignKey: 'projectId' });
 Installment.belongsTo(Project, { foreignKey: 'projectId' });
+Project.hasMany(ProjectCost, { foreignKey: 'projectId' });
+ProjectCost.belongsTo(Project, { foreignKey: 'projectId' });
 
 const authRoutes = require('./routes/auth');
 const accountRoutes = require('./routes/accounts');
@@ -45,7 +48,9 @@ const employeeRoutes = require('./routes/employees');
 const payrollRoutes = require('./routes/payroll');
 const fixedAssetRoutes = require('./routes/fixedAssets');
 const partnerAccountRoutes = require('./routes/partnerAccount');
-
+const journalRoutes = require('./routes/journalEntries');
+const installmentRoutes = require('./routes/installments');
+const projectCostRoutes = require('./routes/projectCosts');
 
 const app = express();
 
@@ -65,10 +70,9 @@ app.use('/api/employees', employeeRoutes);
 app.use('/api/payroll', payrollRoutes);
 app.use('/api/fixed-assets', fixedAssetRoutes);
 app.use('/api/partner-account', partnerAccountRoutes);
-const journalRoutes = require('./routes/journalEntries');
 app.use('/api/journal-entries', journalRoutes);
-const installmentRoutes = require('./routes/installments');
 app.use('/api/installments', installmentRoutes);
+app.use('/api/project-costs', projectCostRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'ERP Software Company API is running' });
