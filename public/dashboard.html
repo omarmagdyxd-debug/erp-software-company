@@ -887,6 +887,117 @@ const headers = getHeaders();
       hideForm('journalForm');
     }
 
+    async function viewInstallments(projectId, projectName) {
+      const content = document.getElementById('content');
+      document.getElementById('pageTitle').textContent = `Installments - ${projectName}`;
+      content.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+          <div>
+            <button onclick="loadSection('projects',null)" style="background:#6c757d;color:white;border:none;padding:0.5rem 1rem;border-radius:8px;cursor:pointer;margin-left:0.5rem">← Back</button>
+            <strong>Project: ${projectName}</strong>
+          </div>
+          <button onclick="showInstallmentForm(${projectId})" style="background:#4361ee;color:white;border:none;padding:0.5rem 1rem;border-radius:8px;cursor:pointer">+ Add Installment</button>
+        </div>
+        <div id="installmentForm" style="display:none;background:#f8f9fa;padding:1rem;border-radius:8px;margin-bottom:1rem">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem">
+            <div><label>Name *</label><input id="instName" style="width:100%;padding:0.5rem;margin-top:0.3rem;border:1px solid #ddd;border-radius:6px" placeholder="e.g. Phase 1"/></div>
+            <div><label>Amount *</label><input id="instAmount" type="number" style="width:100%;padding:0.5rem;margin-top:0.3rem;border:1px solid #ddd;border-radius:6px"/></div>
+            <div><label>Due Date *</label><input id="instDueDate" type="date" style="width:100%;padding:0.5rem;margin-top:0.3rem;border:1px solid #ddd;border-radius:6px"/></div>
+            <div><label>Notes</label><input id="instNotes" style="width:100%;padding:0.5rem;margin-top:0.3rem;border:1px solid #ddd;border-radius:6px"/></div>
+          </div>
+          <div style="margin-top:1rem;display:flex;gap:0.5rem">
+            <button onclick="saveInstallment(${projectId})" style="background:#4361ee;color:white;border:none;padding:0.5rem 1rem;border-radius:6px;cursor:pointer">Save</button>
+            <button onclick="hideForm('installmentForm')" style="background:#6c757d;color:white;border:none;padding:0.5rem 1rem;border-radius:6px;cursor:pointer">Cancel</button>
+          </div>
+        </div>
+        <div id="installmentSummary" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1rem"></div>
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr style="background:#f8f9fa">
+            <th style="padding:0.75rem;text-align:left;border-bottom:2px solid #dee2e6">Name</th>
+            <th style="padding:0.75rem;text-align:left;border-bottom:2px solid #dee2e6">Amount</th>
+            <th style="padding:0.75rem;text-align:left;border-bottom:2px solid #dee2e6">Due Date</th>
+            <th style="padding:0.75rem;text-align:left;border-bottom:2px solid #dee2e6">Paid Date</th>
+            <th style="padding:0.75rem;text-align:left;border-bottom:2px solid #dee2e6">Status</th>
+            <th style="padding:0.75rem;text-align:left;border-bottom:2px solid #dee2e6">Actions</th>
+          </tr></thead>
+          <tbody id="installmentsTable"></tbody>
+        </table>`;
+      loadInstallments(projectId);
+    }
+
+    function showInstallmentForm(projectId) {
+      showForm('installmentForm');
+    }
+
+    async function loadInstallments(projectId) {
+      const res = await fetch(`${API}/installments/project/${projectId}`, { headers: getHeaders() });
+      const installments = await res.json();
+      
+      const total = installments.reduce((s,i) => s + parseFloat(i.amount), 0);
+      const paid = installments.filter(i => i.status === 'paid').reduce((s,i) => s + parseFloat(i.amount), 0);
+      const pending = total - paid;
+      
+      document.getElementById('installmentSummary').innerHTML = `
+        <div style="background:white;padding:1rem;border-radius:8px;border:1px solid #dee2e6">
+          <div style="color:#666;font-size:0.85rem">Total Contract</div>
+          <div style="font-size:1.5rem;font-weight:600">${total.toLocaleString()}</div>
+        </div>
+        <div style="background:#d4edda;padding:1rem;border-radius:8px;border:1px solid #c3e6cb">
+          <div style="color:#155724;font-size:0.85rem">Paid</div>
+          <div style="font-size:1.5rem;font-weight:600;color:#155724">${paid.toLocaleString()}</div>
+        </div>
+        <div style="background:#fff3cd;padding:1rem;border-radius:8px;border:1px solid #ffeeba">
+          <div style="color:#856404;font-size:0.85rem">Remaining</div>
+          <div style="font-size:1.5rem;font-weight:600;color:#856404">${pending.toLocaleString()}</div>
+        </div>`;
+
+      document.getElementById('installmentsTable').innerHTML = installments.length === 0
+        ? '<tr><td colspan="6" style="padding:1rem;text-align:center;color:#666">No installments yet</td></tr>'
+        : installments.map(i => `
+          <tr style="border-bottom:1px solid #dee2e6">
+            <td style="padding:0.75rem">${i.name}</td>
+            <td style="padding:0.75rem;font-weight:600">${parseFloat(i.amount).toLocaleString()}</td>
+            <td style="padding:0.75rem">${i.dueDate}</td>
+            <td style="padding:0.75rem">${i.paidDate || '-'}</td>
+            <td style="padding:0.75rem"><span style="background:${i.status==='paid'?'#d4edda':i.status==='overdue'?'#f8d7da':'#fff3cd'};padding:0.2rem 0.5rem;border-radius:4px;font-size:0.8rem">${i.status}</span></td>
+            <td style="padding:0.75rem;display:flex;gap:0.3rem">
+              ${i.status !== 'paid' ? `<button onclick="payInstallment(${i.id},${i.projectId})" style="background:#28a745;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer">Pay</button>` : ''}
+              <button onclick="deleteInstallment(${i.id},${i.projectId})" style="background:#e63946;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer">Delete</button>
+            </td>
+          </tr>`).join('');
+    }
+
+    async function saveInstallment(projectId) {
+      const body = {
+        projectId,
+        name: document.getElementById('instName').value,
+        amount: document.getElementById('instAmount').value,
+        dueDate: document.getElementById('instDueDate').value,
+        notes: document.getElementById('instNotes').value
+      };
+      if (!body.name || !body.amount || !body.dueDate) return alert('Name, Amount and Due Date are required');
+      await fetch(`${API}/installments`, { method: 'POST', headers: getHeaders(), body: JSON.stringify(body) });
+      hideForm('installmentForm');
+      loadInstallments(projectId);
+    }
+
+    async function payInstallment(id, projectId) {
+      const paidDate = prompt('Payment Date (YYYY-MM-DD):', new Date().toISOString().split('T')[0]);
+      if (!paidDate) return;
+      const sources = ['instapay', 'bank_company_1', 'bank_company_2', 'personal_1', 'personal_2', 'personal_3', 'personal_4'];
+      const source = prompt('Source:\n' + sources.map((s,i) => `${i+1}. ${s}`).join('\n') + '\n\nEnter number:', '1');
+      if (!source) return;
+      const selectedSource = sources[parseInt(source) - 1] || 'instapay';
+      await fetch(`${API}/installments/${id}/pay`, { method: 'PUT', headers: getHeaders(), body: JSON.stringify({ paidDate, source: selectedSource }) });
+      loadInstallments(projectId);
+    }
+
+    async function deleteInstallment(id, projectId) {
+      if (!confirm('Delete this installment?')) return;
+      await fetch(`${API}/installments/${id}`, { method: 'DELETE', headers: getHeaders() });
+      loadInstallments(projectId);
+    }
+
     function logout() {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
@@ -954,7 +1065,9 @@ const headers = getHeaders();
           <td style="padding:0.75rem"><span style="background:${p.status==='active'?'#d4edda':p.status==='completed'?'#cce5ff':'#fff3cd'};padding:0.2rem 0.5rem;border-radius:4px;font-size:0.8rem">${p.status}</span></td>
           <td style="padding:0.75rem;display:flex;gap:0.3rem">
             <button onclick="editProject(${p.id},'${p.name}',${p.clientId},${p.partnerId||'null'},${p.partnerSharePercentage||0},${p.hasContract},'${p.contractType}',${p.contractValue||0},'${p.status}')" style="background:#4361ee;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer">Edit</button>
-            <button onclick="deleteProject(${p.id})" style="background:#e63946;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer">Delete</button>
+            ${p.hasContract && p.contractType === 'installments' ? `<button onclick="viewInstallments(${p.id},'${p.name}')" style="background:#28a745;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer;margin-left:0.3rem">Installments</button>` : ''}
+<button onclick="editProject(${p.id},'${p.name}',${p.clientId},${p.partnerId||'null'},${p.partnerSharePercentage||0},${p.hasContract},'${p.contractType}',${p.contractValue||0},'${p.status}')" style="background:#4361ee;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer">Edit</button>
+<button onclick="deleteProject(${p.id})" style="background:#e63946;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer">Delete</button>
           </td>
         </tr>`).join('');
     }
