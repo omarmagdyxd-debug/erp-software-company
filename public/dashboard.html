@@ -85,6 +85,8 @@
     <div class="logo">🏢 INTAG ERP</div>
     <div class="menu">
       <div class="menu-item active" onclick="loadSection('home', this)">📊 Home</div>
+      <div class="menu-item" onclick="loadSection('accounts', this)">📒 Chart of Accounts</div>
+      <div class="menu-item" onclick="loadSection('journal', this)">📝 Journal Entries</div>
       <div class="menu-item" onclick="loadSection('clients', this)">👥 Clients</div>
       <div class="menu-item" onclick="loadSection('projects', this)">📁 Projects</div>
       <div class="menu-item" onclick="loadSection('partners', this)">🤝 Partners</div>
@@ -155,7 +157,72 @@ const headers = getHeaders();
         loadSummary();
       }
 
-      else if (section === 'clients') {
+      if (section === 'accounts') {
+        document.getElementById('pageTitle').textContent = 'Chart of Accounts';
+        content.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+            <h3>Chart of Accounts</h3>
+            <button onclick="showForm('accountForm')" style="background:#4361ee;color:white;border:none;padding:0.5rem 1rem;border-radius:8px;cursor:pointer">+ Add Account</button>
+          </div>
+          <div id="accountForm" style="display:none;background:#f8f9fa;padding:1rem;border-radius:8px;margin-bottom:1rem">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:1rem">
+              <div><label>Code *</label><input id="acCode" style="width:100%;padding:0.5rem;margin-top:0.3rem;border:1px solid #ddd;border-radius:6px"/></div>
+              <div><label>Name *</label><input id="acName" style="width:100%;padding:0.5rem;margin-top:0.3rem;border:1px solid #ddd;border-radius:6px"/></div>
+              <div><label>Arabic Name</label><input id="acNameAr" style="width:100%;padding:0.5rem;margin-top:0.3rem;border:1px solid #ddd;border-radius:6px"/></div>
+              <div><label>Type *</label><select id="acType" style="width:100%;padding:0.5rem;margin-top:0.3rem;border:1px solid #ddd;border-radius:6px"><option value="asset">Asset</option><option value="liability">Liability</option><option value="equity">Equity</option><option value="revenue">Revenue</option><option value="expense">Expense</option></select></div>
+            </div>
+            <div style="margin-top:1rem;display:flex;gap:0.5rem">
+              <button onclick="saveAccount()" style="background:#4361ee;color:white;border:none;padding:0.5rem 1rem;border-radius:6px;cursor:pointer">Save</button>
+              <button onclick="hideForm('accountForm')" style="background:#6c757d;color:white;border:none;padding:0.5rem 1rem;border-radius:6px;cursor:pointer">Cancel</button>
+            </div>
+          </div>
+          <table style="width:100%;border-collapse:collapse">
+            <thead><tr style="background:#f8f9fa">
+              <th style="padding:0.75rem;text-align:left;border-bottom:2px solid #dee2e6">Code</th>
+              <th style="padding:0.75rem;text-align:left;border-bottom:2px solid #dee2e6">Name</th>
+              <th style="padding:0.75rem;text-align:left;border-bottom:2px solid #dee2e6">Arabic Name</th>
+              <th style="padding:0.75rem;text-align:left;border-bottom:2px solid #dee2e6">Type</th>
+              <th style="padding:0.75rem;text-align:left;border-bottom:2px solid #dee2e6">Actions</th>
+            </tr></thead>
+            <tbody id="accountsTable"></tbody>
+          </table>`;
+        loadAccounts();
+
+      } else if (section === 'journal') {
+        document.getElementById('pageTitle').textContent = 'Journal Entries';
+        const res = await fetch(`${API}/accounts`, { headers: getHeaders() });
+        const accounts = await res.json();
+        content.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+            <h3>Journal Entries</h3>
+            <button onclick="showForm('journalForm')" style="background:#4361ee;color:white;border:none;padding:0.5rem 1rem;border-radius:8px;cursor:pointer">+ Add Entry</button>
+          </div>
+          <div id="journalForm" style="display:none;background:#f8f9fa;padding:1rem;border-radius:8px;margin-bottom:1rem">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem">
+              <div><label>Date *</label><input id="jDate" type="date" style="width:100%;padding:0.5rem;margin-top:0.3rem;border:1px solid #ddd;border-radius:6px"/></div>
+              <div><label>Amount *</label><input id="jAmount" type="number" style="width:100%;padding:0.5rem;margin-top:0.3rem;border:1px solid #ddd;border-radius:6px"/></div>
+              <div><label>Description *</label><input id="jDesc" style="width:100%;padding:0.5rem;margin-top:0.3rem;border:1px solid #ddd;border-radius:6px"/></div>
+              <div><label>Debit Account *</label><select id="jDebit" style="width:100%;padding:0.5rem;margin-top:0.3rem;border:1px solid #ddd;border-radius:6px"><option value="">Select Account</option>${accounts.map(a=>`<option value="${a.id}">${a.code} - ${a.name}</option>`).join('')}</select></div>
+              <div><label>Credit Account *</label><select id="jCredit" style="width:100%;padding:0.5rem;margin-top:0.3rem;border:1px solid #ddd;border-radius:6px"><option value="">Select Account</option>${accounts.map(a=>`<option value="${a.id}">${a.code} - ${a.name}</option>`).join('')}</select></div>
+            </div>
+            <div style="margin-top:1rem;display:flex;gap:0.5rem">
+              <button onclick="saveJournalEntry()" style="background:#4361ee;color:white;border:none;padding:0.5rem 1rem;border-radius:6px;cursor:pointer">Save</button>
+              <button onclick="hideForm('journalForm')" style="background:#6c757d;color:white;border:none;padding:0.5rem 1rem;border-radius:6px;cursor:pointer">Cancel</button>
+            </div>
+          </div>
+          <table style="width:100%;border-collapse:collapse">
+            <thead><tr style="background:#f8f9fa">
+              <th style="padding:0.75rem;text-align:left;border-bottom:2px solid #dee2e6">Date</th>
+              <th style="padding:0.75rem;text-align:left;border-bottom:2px solid #dee2e6">Description</th>
+              <th style="padding:0.75rem;text-align:left;border-bottom:2px solid #dee2e6">Debit</th>
+              <th style="padding:0.75rem;text-align:left;border-bottom:2px solid #dee2e6">Credit</th>
+              <th style="padding:0.75rem;text-align:left;border-bottom:2px solid #dee2e6">Amount</th>
+              <th style="padding:0.75rem;text-align:left;border-bottom:2px solid #dee2e6">Type</th>
+            </tr></thead>
+            <tbody id="journalTable"><tr><td colspan="6" style="padding:1rem;text-align:center;color:#666">No entries yet</td></tr></tbody>
+          </table>`;
+
+      } else if (section === 'clients') {
         document.getElementById('pageTitle').textContent = 'Clients';
         content.innerHTML = `
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
@@ -729,6 +796,80 @@ const headers = getHeaders();
         </div>`;
     }
 
+    let editingAccountId = null;
+
+    async function loadAccounts() {
+      const res = await fetch(`${API}/accounts`, { headers: getHeaders() });
+      const accounts = await res.json();
+      document.getElementById('accountsTable').innerHTML = accounts.map(a => `
+        <tr style="border-bottom:1px solid #dee2e6">
+          <td style="padding:0.75rem">${a.code}</td>
+          <td style="padding:0.75rem">${a.name}</td>
+          <td style="padding:0.75rem">${a.nameAr || '-'}</td>
+          <td style="padding:0.75rem"><span style="background:#e8f0fe;color:#4361ee;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.8rem">${a.type}</span></td>
+          <td style="padding:0.75rem;display:flex;gap:0.3rem">
+            <button onclick="editAccount(${a.id},'${a.code}','${a.name}','${a.nameAr||''}','${a.type}')" style="background:#4361ee;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer">Edit</button>
+            <button onclick="deleteAccount(${a.id})" style="background:#e63946;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer">Delete</button>
+          </td>
+        </tr>`).join('');
+    }
+
+    function editAccount(id, code, name, nameAr, type) {
+      editingAccountId = id;
+      document.getElementById('acCode').value = code;
+      document.getElementById('acName').value = name;
+      document.getElementById('acNameAr').value = nameAr;
+      document.getElementById('acType').value = type;
+      showForm('accountForm');
+    }
+
+    async function saveAccount() {
+      const body = {
+        code: document.getElementById('acCode').value,
+        name: document.getElementById('acName').value,
+        nameAr: document.getElementById('acNameAr').value,
+        type: document.getElementById('acType').value
+      };
+      if (!body.code || !body.name) return alert('Code and Name are required');
+      if (editingAccountId) {
+        await fetch(`${API}/accounts/${editingAccountId}`, { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) });
+        editingAccountId = null;
+      } else {
+        await fetch(`${API}/accounts`, { method: 'POST', headers: getHeaders(), body: JSON.stringify(body) });
+      }
+      hideForm('accountForm');
+      loadAccounts();
+    }
+
+    async function deleteAccount(id) {
+      if (!confirm('Delete this account?')) return;
+      await fetch(`${API}/accounts/${id}`, { method: 'DELETE', headers: getHeaders() });
+      loadAccounts();
+    }
+
+    async function loadJournal() {
+      const res = await fetch(`${API}/accounts`, { headers: getHeaders() });
+      const accounts = await res.json();
+      const res2 = await fetch('/api/journal', { headers: getHeaders() });
+      document.getElementById('journalTable').innerHTML = '<tr><td colspan="6" style="padding:1rem;text-align:center;color:#666">No entries yet</td></tr>';
+    }
+
+    async function saveJournalEntry() {
+      const res = await fetch(`${API}/accounts`, { headers: getHeaders() });
+      const accounts = await res.json();
+      const body = {
+        date: document.getElementById('jDate').value,
+        description: document.getElementById('jDesc').value,
+        debitAccountId: document.getElementById('jDebit').value,
+        creditAccountId: document.getElementById('jCredit').value,
+        amount: document.getElementById('jAmount').value,
+        type: 'manual'
+      };
+      if (!body.date || !body.description || !body.debitAccountId || !body.creditAccountId || !body.amount) return alert('All fields are required');
+      await fetch(`${API}/journal-entries`, { method: 'POST', headers: getHeaders(), body: JSON.stringify(body) });
+      hideForm('journalForm');
+    }
+
     function logout() {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
@@ -792,12 +933,26 @@ const headers = getHeaders();
           <td style="padding:0.75rem">${p.name}</td>
           <td style="padding:0.75rem">${p.Client ? p.Client.name : '-'}</td>
           <td style="padding:0.75rem">${p.Partner ? p.Partner.name : '-'}</td>
-          <td style="padding:0.75rem">${p.hasContract ? p.contractValue.toLocaleString() : 'No Contract'}</td>
+          <td style="padding:0.75rem">${p.hasContract ? parseFloat(p.contractValue).toLocaleString() : 'No Contract'}</td>
           <td style="padding:0.75rem"><span style="background:${p.status==='active'?'#d4edda':p.status==='completed'?'#cce5ff':'#fff3cd'};padding:0.2rem 0.5rem;border-radius:4px;font-size:0.8rem">${p.status}</span></td>
-          <td style="padding:0.75rem">
+          <td style="padding:0.75rem;display:flex;gap:0.3rem">
+            <button onclick="editProject(${p.id},'${p.name}',${p.clientId},${p.partnerId||'null'},${p.partnerSharePercentage||0},${p.hasContract},'${p.contractType}',${p.contractValue||0},'${p.status}')" style="background:#4361ee;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer">Edit</button>
             <button onclick="deleteProject(${p.id})" style="background:#e63946;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer">Delete</button>
           </td>
         </tr>`).join('');
+    }
+
+    let editingProjectId = null;
+    function editProject(id, name, clientId, partnerId, partnerShare, hasContract, contractType, contractValue, status) {
+      editingProjectId = id;
+      document.getElementById('prName').value = name;
+      document.getElementById('prClient').value = clientId;
+      document.getElementById('prPartner').value = partnerId || '';
+      document.getElementById('prPartnerShare').value = partnerShare;
+      document.getElementById('prHasContract').checked = hasContract;
+      document.getElementById('prContractType').value = contractType;
+      document.getElementById('prContractValue').value = contractValue;
+      showForm('projectForm');
     }
 
     async function saveProject() {
@@ -813,7 +968,12 @@ const headers = getHeaders();
         description: document.getElementById('prDesc').value
       };
       if (!body.name || !body.clientId) return alert('Name and Client are required');
-      await fetch(`${API}/projects`, { method: 'POST', headers, body: JSON.stringify(body) });
+      if (editingProjectId) {
+        await fetch(`${API}/projects/${editingProjectId}`, { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) });
+        editingProjectId = null;
+      } else {
+        await fetch(`${API}/projects`, { method: 'POST', headers: getHeaders(), body: JSON.stringify(body) });
+      }
       hideForm('projectForm');
       loadProjects();
     }
@@ -825,8 +985,10 @@ const headers = getHeaders();
     }
 
     // ===== REVENUE =====
+    let editingRevenueId = null;
+
     async function loadRevenue() {
-      const res = await fetch(`${API}/revenue`, { headers });
+      const res = await fetch(`${API}/revenue`, { headers: getHeaders() });
       const revenues = await res.json();
       document.getElementById('revenueTable').innerHTML = revenues.map(r => `
         <tr style="border-bottom:1px solid #dee2e6">
@@ -836,10 +998,22 @@ const headers = getHeaders();
           <td style="padding:0.75rem">${r.Client ? r.Client.name : '-'}</td>
           <td style="padding:0.75rem">${r.Project ? r.Project.name : '-'}</td>
           <td style="padding:0.75rem">${r.description || '-'}</td>
-          <td style="padding:0.75rem">
+          <td style="padding:0.75rem;display:flex;gap:0.3rem">
+            <button onclick="editRevenue(${r.id},'${r.date}',${r.amount},'${r.source}',${r.clientId||'null'},${r.projectId||'null'},'${r.description||''}')" style="background:#4361ee;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer">Edit</button>
             <button onclick="deleteRevenue(${r.id})" style="background:#e63946;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer">Delete</button>
           </td>
         </tr>`).join('');
+    }
+
+    function editRevenue(id, date, amount, source, clientId, projectId, description) {
+      editingRevenueId = id;
+      document.getElementById('rDate').value = date;
+      document.getElementById('rAmount').value = amount;
+      document.getElementById('rSource').value = source;
+      document.getElementById('rClient').value = clientId || '';
+      document.getElementById('rProject').value = projectId || '';
+      document.getElementById('rDesc').value = description;
+      showForm('revenueForm');
     }
 
     async function saveRevenue() {
@@ -852,7 +1026,12 @@ const headers = getHeaders();
         description: document.getElementById('rDesc').value
       };
       if (!body.date || !body.amount || !body.source) return alert('Date, Amount and Source are required');
-      await fetch(`${API}/revenue`, { method: 'POST', headers, body: JSON.stringify(body) });
+      if (editingRevenueId) {
+        await fetch(`${API}/revenue/${editingRevenueId}`, { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) });
+        editingRevenueId = null;
+      } else {
+        await fetch(`${API}/revenue`, { method: 'POST', headers: getHeaders(), body: JSON.stringify(body) });
+      }
       hideForm('revenueForm');
       loadRevenue();
     }
@@ -864,8 +1043,10 @@ const headers = getHeaders();
     }
 
     // ===== EXPENSES =====
+    let editingExpenseId = null;
+
     async function loadExpenses() {
-      const res = await fetch(`${API}/expenses`, { headers });
+      const res = await fetch(`${API}/expenses`, { headers: getHeaders() });
       const expenses = await res.json();
       document.getElementById('expensesTable').innerHTML = expenses.map(e => `
         <tr style="border-bottom:1px solid #dee2e6">
@@ -874,10 +1055,21 @@ const headers = getHeaders();
           <td style="padding:0.75rem">${e.category}</td>
           <td style="padding:0.75rem">${e.source}</td>
           <td style="padding:0.75rem">${e.description}</td>
-          <td style="padding:0.75rem">
+          <td style="padding:0.75rem;display:flex;gap:0.3rem">
+            <button onclick="editExpense(${e.id},'${e.date}',${e.amount},'${e.category}','${e.source}','${e.description||''}')" style="background:#4361ee;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer">Edit</button>
             <button onclick="deleteExpense(${e.id})" style="background:#e63946;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer">Delete</button>
           </td>
         </tr>`).join('');
+    }
+
+    function editExpense(id, date, amount, category, source, description) {
+      editingExpenseId = id;
+      document.getElementById('eDate').value = date;
+      document.getElementById('eAmount').value = amount;
+      document.getElementById('eCategory').value = category;
+      document.getElementById('eSource').value = source;
+      document.getElementById('eDesc').value = description;
+      showForm('expenseForm');
     }
 
     async function saveExpense() {
@@ -889,7 +1081,12 @@ const headers = getHeaders();
         description: document.getElementById('eDesc').value
       };
       if (!body.date || !body.amount || !body.description) return alert('Date, Amount and Description are required');
-      await fetch(`${API}/expenses`, { method: 'POST', headers, body: JSON.stringify(body) });
+      if (editingExpenseId) {
+        await fetch(`${API}/expenses/${editingExpenseId}`, { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) });
+        editingExpenseId = null;
+      } else {
+        await fetch(`${API}/expenses`, { method: 'POST', headers: getHeaders(), body: JSON.stringify(body) });
+      }
       hideForm('expenseForm');
       loadExpenses();
     }
@@ -901,8 +1098,10 @@ const headers = getHeaders();
     }
 
     // ===== EMPLOYEES =====
+    let editingEmployeeId = null;
+
     async function loadEmployees() {
-      const res = await fetch(`${API}/employees`, { headers });
+      const res = await fetch(`${API}/employees`, { headers: getHeaders() });
       const employees = await res.json();
       document.getElementById('employeesTable').innerHTML = employees.map(e => `
         <tr style="border-bottom:1px solid #dee2e6">
@@ -911,10 +1110,23 @@ const headers = getHeaders();
           <td style="padding:0.75rem">${e.phone || '-'}</td>
           <td style="padding:0.75rem">${parseFloat(e.baseSalary).toLocaleString()}</td>
           <td style="padding:0.75rem">${e.hireDate || '-'}</td>
-          <td style="padding:0.75rem">
+          <td style="padding:0.75rem;display:flex;gap:0.3rem">
+            <button onclick="editEmployee(${e.id},'${e.name}','${e.position||''}','${e.phone||''}',${e.baseSalary},'${e.hireDate||''}',${e.insuranceDeduction||0},${e.subscriptionDeduction||0})" style="background:#4361ee;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer">Edit</button>
             <button onclick="deleteEmployee(${e.id})" style="background:#e63946;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer">Delete</button>
           </td>
         </tr>`).join('');
+    }
+
+    function editEmployee(id, name, position, phone, baseSalary, hireDate, insurance, subscription) {
+      editingEmployeeId = id;
+      document.getElementById('emName').value = name;
+      document.getElementById('emPosition').value = position;
+      document.getElementById('emPhone').value = phone;
+      document.getElementById('emSalary').value = baseSalary;
+      document.getElementById('emHireDate').value = hireDate;
+      document.getElementById('emInsurance').value = insurance;
+      document.getElementById('emSubscription').value = subscription;
+      showForm('employeeForm');
     }
 
     async function saveEmployee() {
@@ -928,7 +1140,12 @@ const headers = getHeaders();
         subscriptionDeduction: document.getElementById('emSubscription').value || 0
       };
       if (!body.name || !body.baseSalary) return alert('Name and Salary are required');
-      await fetch(`${API}/employees`, { method: 'POST', headers, body: JSON.stringify(body) });
+      if (editingEmployeeId) {
+        await fetch(`${API}/employees/${editingEmployeeId}`, { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) });
+        editingEmployeeId = null;
+      } else {
+        await fetch(`${API}/employees`, { method: 'POST', headers: getHeaders(), body: JSON.stringify(body) });
+      }
       hideForm('employeeForm');
       loadEmployees();
     }
@@ -940,8 +1157,10 @@ const headers = getHeaders();
     }
 
     // ===== FIXED ASSETS =====
+    let editingAssetId = null;
+
     async function loadFixedAssets() {
-      const res = await fetch(`${API}/fixed-assets`, { headers });
+      const res = await fetch(`${API}/fixed-assets`, { headers: getHeaders() });
       const assets = await res.json();
       document.getElementById('assetsTable').innerHTML = assets.map(a => `
         <tr style="border-bottom:1px solid #dee2e6">
@@ -951,10 +1170,22 @@ const headers = getHeaders();
           <td style="padding:0.75rem">${parseFloat(a.purchaseValue).toLocaleString()}</td>
           <td style="padding:0.75rem">${parseFloat(a.currentValue||0).toLocaleString()}</td>
           <td style="padding:0.75rem"><span style="background:${a.status==='active'?'#d4edda':'#fff3cd'};padding:0.2rem 0.5rem;border-radius:4px;font-size:0.8rem">${a.status}</span></td>
-          <td style="padding:0.75rem">
+          <td style="padding:0.75rem;display:flex;gap:0.3rem">
+            <button onclick="editAsset(${a.id},'${a.name}','${a.category}','${a.purchaseDate}',${a.purchaseValue},${a.usefulLifeYears||5},'${a.source||'instapay'}','${a.status}')" style="background:#4361ee;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer">Edit</button>
             <button onclick="deleteAsset(${a.id})" style="background:#e63946;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer">Delete</button>
           </td>
         </tr>`).join('');
+    }
+
+    function editAsset(id, name, category, purchaseDate, purchaseValue, usefulLife, source, status) {
+      editingAssetId = id;
+      document.getElementById('asName').value = name;
+      document.getElementById('asCategory').value = category;
+      document.getElementById('asPurchaseDate').value = purchaseDate;
+      document.getElementById('asPurchaseValue').value = purchaseValue;
+      document.getElementById('asUsefulLife').value = usefulLife;
+      document.getElementById('asSource').value = source;
+      showForm('assetForm');
     }
 
     async function saveAsset() {
@@ -967,7 +1198,12 @@ const headers = getHeaders();
         source: document.getElementById('asSource').value
       };
       if (!body.name || !body.purchaseDate || !body.purchaseValue) return alert('Name, Date and Value are required');
-      await fetch(`${API}/fixed-assets`, { method: 'POST', headers, body: JSON.stringify(body) });
+      if (editingAssetId) {
+        await fetch(`${API}/fixed-assets/${editingAssetId}`, { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) });
+        editingAssetId = null;
+      } else {
+        await fetch(`${API}/fixed-assets`, { method: 'POST', headers: getHeaders(), body: JSON.stringify(body) });
+      }
       hideForm('assetForm');
       loadFixedAssets();
     }
@@ -979,8 +1215,10 @@ const headers = getHeaders();
     }
 
     // ===== PARTNER ACCOUNT =====
+    let editingPartnerTxId = null;
+
     async function loadPartnerAccount() {
-      const res = await fetch(`${API}/partner-account`, { headers });
+      const res = await fetch(`${API}/partner-account`, { headers: getHeaders() });
       const data = await res.json();
       document.getElementById('partnerBalance').textContent = parseFloat(data.balance).toLocaleString();
       document.getElementById('partnerTable').innerHTML = data.transactions.map(t => `
@@ -990,10 +1228,21 @@ const headers = getHeaders();
           <td style="padding:0.75rem">${parseFloat(t.amount).toLocaleString()}</td>
           <td style="padding:0.75rem">${t.source}</td>
           <td style="padding:0.75rem">${t.description || '-'}</td>
-          <td style="padding:0.75rem">
+          <td style="padding:0.75rem;display:flex;gap:0.3rem">
+            <button onclick="editPartnerTx(${t.id},'${t.date}','${t.type}',${t.amount},'${t.source}','${t.description||''}')" style="background:#4361ee;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer">Edit</button>
             <button onclick="deletePartnerTx(${t.id})" style="background:#e63946;color:white;border:none;padding:0.3rem 0.7rem;border-radius:4px;cursor:pointer">Delete</button>
           </td>
         </tr>`).join('');
+    }
+
+    function editPartnerTx(id, date, type, amount, source, description) {
+      editingPartnerTxId = id;
+      document.getElementById('ptDate').value = date;
+      document.getElementById('ptType').value = type;
+      document.getElementById('ptAmount').value = amount;
+      document.getElementById('ptSource').value = source;
+      document.getElementById('ptDesc').value = description;
+      showForm('partnerTxForm');
     }
 
     async function savePartnerTx() {
@@ -1005,7 +1254,12 @@ const headers = getHeaders();
         description: document.getElementById('ptDesc').value
       };
       if (!body.date || !body.amount) return alert('Date and Amount are required');
-      await fetch(`${API}/partner-account`, { method: 'POST', headers, body: JSON.stringify(body) });
+      if (editingPartnerTxId) {
+        await fetch(`${API}/partner-account/${editingPartnerTxId}`, { method: 'PUT', headers: getHeaders(), body: JSON.stringify(body) });
+        editingPartnerTxId = null;
+      } else {
+        await fetch(`${API}/partner-account`, { method: 'POST', headers: getHeaders(), body: JSON.stringify(body) });
+      }
       hideForm('partnerTxForm');
       loadPartnerAccount();
     }
