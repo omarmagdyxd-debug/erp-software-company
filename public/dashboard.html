@@ -4,134 +4,103 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ERP - Dashboard</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; }
-    .sidebar {
-      position: fixed;
-      left: 0;
-      top: 0;
-      width: 250px;
-      height: 100vh;
-      background: #1a1a2e;
-      color: white;
-      padding: 1.5rem 0;
-      overflow-y: auto;
-    }
-    .logo {
-      text-align: center;
-      padding: 0 1.5rem 1.5rem;
-      border-bottom: 1px solid #ffffff20;
-      font-size: 1rem;
-      font-weight: 600;
-    }
-    .menu { padding: 1rem 0; }
-    .menu-item {
-      padding: 0.85rem 1.5rem;
-      cursor: pointer;
-      transition: background 0.2s;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .menu-item:hover { background: #ffffff15; }
-    .menu-item.active { background: #4361ee; }
-    .main {
-      margin-left: 250px;
-      padding: 2rem;
-      min-height: 100vh;
-    }
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-    .topbar h2 { color: #1a1a2e; font-size: 1.3rem; }
-    .logout {
-      background: #e63946;
-      color: white;
-      border: none;
-      padding: 0.5rem 1.2rem;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    .card {
-      background: white;
-      padding: 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-    }
-    .card-label { color: #666; font-size: 0.85rem; margin-bottom: 0.5rem; }
-    .card-value { font-size: 1.8rem; font-weight: 600; color: #1a1a2e; }
-    .content-area {
-      background: white;
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-    }
-  </style>
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <div class="sidebar">
-    <div class="logo">🏢 INTAG ERP</div>
+    <div class="logo">
+      <span class="logo-icon">🏢</span>
+      <div>
+        <div class="logo-text">INTAG ERP</div>
+        <div class="logo-sub">Management System</div>
+      </div>
+    </div>
     <div class="menu">
-      <div class="menu-item active" onclick="loadSection('home', this)">📊 Home</div>
-      <div class="menu-item" onclick="loadSection('accounts', this)">📒 Chart of Accounts</div>
-      <div class="menu-item" onclick="loadSection('journal', this)">📝 Journal Entries</div>
-      <div class="menu-item" onclick="loadSection('clients', this)">👥 Clients</div>
-      <div class="menu-item" onclick="loadSection('projects', this)">📁 Projects</div>
-      <div class="menu-item" onclick="loadSection('partners', this)">🤝 Partners</div>
-      <div class="menu-item" onclick="loadSection('revenue', this)">💰 Revenue</div>
-      <div class="menu-item" onclick="loadSection('expenses', this)">💸 Expenses</div>
-      <div class="menu-item" onclick="loadSection('custody', this)">🗂️ Custody</div>
-      <div class="menu-item" onclick="loadSection('employees', this)">👔 Employees</div>
-      <div class="menu-item" onclick="loadSection('payroll', this)">💵 Payroll</div>
-      <div class="menu-item" onclick="loadSection('fixedAssets', this)">🏗️ Fixed Assets</div>
-      <div class="menu-item" onclick="loadSection('partnerAccount', this)">🔄 Partner Account</div>
-      <div class="menu-item" onclick="loadSection('reports', this)">📈 Reports</div>
-      <div class="menu-item" onclick="loadSection('settings', this)">⚙️ Settings</div>
+      <div class="menu-group-label">Main</div>
+      <div class="menu-item active" onclick="loadSection('home', this)"><span class="icon">📊</span> Home</div>
+      
+      <div class="menu-group-label">Accounting</div>
+      <div class="menu-item" onclick="loadSection('accounts', this)"><span class="icon">📒</span> Chart of Accounts</div>
+      <div class="menu-item" onclick="loadSection('journal', this)"><span class="icon">📝</span> Journal Entries</div>
+      
+      <div class="menu-group-label">Sales</div>
+      <div class="menu-item" onclick="loadSection('clients', this)"><span class="icon">👥</span> Clients</div>
+      <div class="menu-item" onclick="loadSection('projects', this)"><span class="icon">📁</span> Projects</div>
+      <div class="menu-item" onclick="loadSection('partners', this)"><span class="icon">🤝</span> Partners</div>
+      
+      <div class="menu-group-label">Finance</div>
+      <div class="menu-item" onclick="loadSection('revenue', this)"><span class="icon">💰</span> Revenue</div>
+      <div class="menu-item" onclick="loadSection('expenses', this)"><span class="icon">💸</span> Expenses</div>
+      <div class="menu-item" onclick="loadSection('custody', this)"><span class="icon">🗂️</span> Custody</div>
+      <div class="menu-item" onclick="loadSection('partnerAccount', this)"><span class="icon">🔄</span> Partner Account</div>
+      
+      <div class="menu-group-label">HR</div>
+      <div class="menu-item" onclick="loadSection('employees', this)"><span class="icon">👔</span> Employees</div>
+      <div class="menu-item" onclick="loadSection('payroll', this)"><span class="icon">💵</span> Payroll</div>
+      
+      <div class="menu-group-label">Assets</div>
+      <div class="menu-item" onclick="loadSection('fixedAssets', this)"><span class="icon">🏗️</span> Fixed Assets</div>
+      
+      <div class="menu-group-label">Other</div>
+      <div class="menu-item" onclick="loadSection('reports', this)"><span class="icon">📈</span> Reports</div>
+      <div class="menu-item" onclick="loadSection('settings', this)"><span class="icon">⚙️</span> Settings</div>
     </div>
   </div>
 
   <div class="main">
     <div class="topbar">
-      <h2 id="pageTitle">Home</h2>
-      <div style="display:flex;align-items:center;gap:1rem">
-        <span id="usernameDisplay" style="color:#666;font-size:0.9rem"></span>
-        <button class="logout" onclick="logout()">Logout</button>
+      <div class="topbar-left">
+        <h2 id="pageTitle">Home</h2>
+        <div class="breadcrumb" id="breadcrumb">Dashboard</div>
+      </div>
+      <div class="topbar-right">
+        <div class="user-badge">
+          <div class="user-avatar" id="userAvatar">A</div>
+          <span id="usernameDisplay"></span>
+        </div>
+        <button class="btn btn-logout" onclick="logout()">Logout</button>
       </div>
     </div>
 
-    <div class="cards" id="summaryCards">
-      <div class="card">
-        <div class="card-label">Total Clients</div>
-        <div class="card-value" id="totalClients">0</div>
+    <div class="page-content">
+      <div class="stats-grid" id="summaryCards">
+        <div class="stat-card">
+          <div class="stat-icon blue">👥</div>
+          <div class="stat-info">
+            <div class="label">Total Clients</div>
+            <div class="value" id="totalClients">0</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon orange">📁</div>
+          <div class="stat-info">
+            <div class="label">Active Projects</div>
+            <div class="value" id="totalProjects">0</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">💰</div>
+          <div class="stat-info">
+            <div class="label">Total Revenue</div>
+            <div class="value" id="totalRevenue">0</div>
+            <div class="sub">EGP</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red">💸</div>
+          <div class="stat-info">
+            <div class="label">Total Expenses</div>
+            <div class="value" id="totalExpenses">0</div>
+            <div class="sub">EGP</div>
+          </div>
+        </div>
       </div>
-      <div class="card">
-        <div class="card-label">Active Projects</div>
-        <div class="card-value" id="totalProjects">0</div>
-      </div>
-      <div class="card">
-        <div class="card-label">Total Revenue</div>
-        <div class="card-value" id="totalRevenue">0</div>
-      </div>
-      <div class="card">
-        <div class="card-label">Total Expenses</div>
-        <div class="card-value" id="totalExpenses">0</div>
-      </div>
-    </div>
 
-    <div class="content-area" id="content">
-      <p style="color:#666;text-align:center;padding:2rem">Select a section from the sidebar</p>
+      <div class="content-card">
+        <div id="content" class="content-card-body">
+          <p style="color:#999;text-align:center;padding:3rem">Select a section from the sidebar</p>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -144,6 +113,9 @@ const headers = getHeaders();
 
     if (!token) window.location.href = '/login.html';
     document.getElementById('usernameDisplay').textContent = user.username || '';
+    window.addEventListener('load', () => {
+      loadSection('home', document.querySelector('.menu-item.active'));
+    });
 
     async function loadSection(section, el) {
       document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
@@ -153,8 +125,42 @@ const headers = getHeaders();
 
       if (section === 'home') {
         document.getElementById('pageTitle').textContent = 'Home';
-        content.innerHTML = '<p style="color:#666;text-align:center;padding:2rem">Select a section from the sidebar</p>';
-        loadSummary();
+        content.innerHTML = `
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem">
+            <div onclick="loadSection('clients',document.querySelector('[onclick*=clients]'))" style="background:#f8f9fa;border:1px solid #eee;border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='#e8f0fe'" onmouseout="this.style.background='#f8f9fa'">
+              <div style="font-size:2rem;margin-bottom:0.5rem">👥</div>
+              <div style="font-weight:600;color:#333">Clients</div>
+            </div>
+            <div onclick="loadSection('projects',document.querySelector('[onclick*=projects]'))" style="background:#f8f9fa;border:1px solid #eee;border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='#fff3e0'" onmouseout="this.style.background='#f8f9fa'">
+              <div style="font-size:2rem;margin-bottom:0.5rem">📁</div>
+              <div style="font-weight:600;color:#333">Projects</div>
+            </div>
+            <div onclick="loadSection('revenue',document.querySelector('[onclick*=revenue]'))" style="background:#f8f9fa;border:1px solid #eee;border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='#e6f9f0'" onmouseout="this.style.background='#f8f9fa'">
+              <div style="font-size:2rem;margin-bottom:0.5rem">💰</div>
+              <div style="font-weight:600;color:#333">Revenue</div>
+            </div>
+            <div onclick="loadSection('expenses',document.querySelector('[onclick*=expenses]'))" style="background:#f8f9fa;border:1px solid #eee;border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='#fdecea'" onmouseout="this.style.background='#f8f9fa'">
+              <div style="font-size:2rem;margin-bottom:0.5rem">💸</div>
+              <div style="font-weight:600;color:#333">Expenses</div>
+            </div>
+            <div onclick="loadSection('employees',document.querySelector('[onclick*=employees]'))" style="background:#f8f9fa;border:1px solid #eee;border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='#f3e8ff'" onmouseout="this.style.background='#f8f9fa'">
+              <div style="font-size:2rem;margin-bottom:0.5rem">👔</div>
+              <div style="font-weight:600;color:#333">Employees</div>
+            </div>
+            <div onclick="loadSection('custody',document.querySelector('[onclick*=custody]'))" style="background:#f8f9fa;border:1px solid #eee;border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='#fff8e1'" onmouseout="this.style.background='#f8f9fa'">
+              <div style="font-size:2rem;margin-bottom:0.5rem">🗂️</div>
+              <div style="font-weight:600;color:#333">Custody</div>
+            </div>
+            <div onclick="loadSection('reports',document.querySelector('[onclick*=reports]'))" style="background:#f8f9fa;border:1px solid #eee;border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='#e8f4fd'" onmouseout="this.style.background='#f8f9fa'">
+              <div style="font-size:2rem;margin-bottom:0.5rem">📈</div>
+              <div style="font-weight:600;color:#333">Reports</div>
+            </div>
+            <div onclick="loadSection('journal',document.querySelector('[onclick*=journal]'))" style="background:#f8f9fa;border:1px solid #eee;border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='#e8f0fe'" onmouseout="this.style.background='#f8f9fa'">
+              <div style="font-size:2rem;margin-bottom:0.5rem">📝</div>
+              <div style="font-weight:600;color:#333">Journal</div>
+            </div>
+        </div>`;
+        loadSection('home', document.querySelector('.menu-item.active'));
       }
 
       if (section === 'accounts') {
