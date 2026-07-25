@@ -18,6 +18,8 @@ const Payroll = require('./models/Payroll');
 const FixedAsset = require('./models/FixedAsset');
 const PartnerTransaction = require('./models/PartnerTransaction');
 
+JournalEntry.belongsTo(Account, { as: 'DebitAccount', foreignKey: 'debitAccountId' });
+JournalEntry.belongsTo(Account, { as: 'CreditAccount', foreignKey: 'creditAccountId' });
 Project.belongsTo(Client, { foreignKey: 'clientId' });
 Project.belongsTo(Partner, { foreignKey: 'partnerId' });
 Client.hasMany(Project, { foreignKey: 'clientId' });
@@ -59,6 +61,8 @@ app.use('/api/employees', employeeRoutes);
 app.use('/api/payroll', payrollRoutes);
 app.use('/api/fixed-assets', fixedAssetRoutes);
 app.use('/api/partner-account', partnerAccountRoutes);
+const journalRoutes = require('./routes/journalEntries');
+app.use('/api/journal-entries', journalRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'ERP Software Company API is running' });

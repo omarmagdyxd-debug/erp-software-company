@@ -53,6 +53,13 @@ router.put('/:id', authMiddleware, async (req, res) => {
 
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {
+    const revenue = await Revenue.findByPk(req.params.id);
+    if (!revenue) return res.status(404).json({ message: 'مش موجود' });
+    
+    await JournalEntry.destroy({ 
+      where: { type: 'revenue', relatedId: req.params.id } 
+    });
+    
     await Revenue.destroy({ where: { id: req.params.id } });
     res.json({ message: 'تم الحذف' });
   } catch (err) {

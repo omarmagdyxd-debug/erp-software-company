@@ -73,4 +73,21 @@ router.post('/seed', authMiddleware, async (req, res) => {
   }
 });
 
+router.get('/journal-entries', authMiddleware, async (req, res) => {
+  try {
+    const JournalEntry = require('../models/JournalEntry');
+    const Account = require('../models/Account');
+    const entries = await JournalEntry.findAll({
+      include: [
+        { model: Account, as: 'DebitAccount', attributes: ['code', 'name'] },
+        { model: Account, as: 'CreditAccount', attributes: ['code', 'name'] }
+      ],
+      order: [['date', 'DESC']]
+    });
+    res.json(entries);
+  } catch (err) {
+    res.status(500).json({ message: 'خطأ في السيرفر' });
+  }
+});
+
 module.exports = router;

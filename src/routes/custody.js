@@ -62,6 +62,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
 
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {
+    await JournalEntry.destroy({ where: { type: 'custody', relatedId: req.params.id } });
     await Custody.destroy({ where: { id: req.params.id } });
     res.json({ message: 'تم الحذف' });
   } catch (err) {

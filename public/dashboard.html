@@ -221,6 +221,7 @@ const headers = getHeaders();
             </tr></thead>
             <tbody id="journalTable"><tr><td colspan="6" style="padding:1rem;text-align:center;color:#666">No entries yet</td></tr></tbody>
           </table>`;
+        loadJournal();
 
       } else if (section === 'clients') {
         document.getElementById('pageTitle').textContent = 'Clients';
@@ -848,10 +849,26 @@ const headers = getHeaders();
     }
 
     async function loadJournal() {
-      const res = await fetch(`${API}/accounts`, { headers: getHeaders() });
-      const accounts = await res.json();
-      const res2 = await fetch('/api/journal', { headers: getHeaders() });
-      document.getElementById('journalTable').innerHTML = '<tr><td colspan="6" style="padding:1rem;text-align:center;color:#666">No entries yet</td></tr>';
+      try {
+        const res = await fetch('http://localhost:3001/api/journal-entries', { headers: getHeaders() });
+        const entries = await res.json();
+        console.log('Journal entries:', entries);
+        const tbody = document.getElementById('journalTable');
+        if (!tbody) return;
+        tbody.innerHTML = entries.length === 0
+          ? '<tr><td colspan="6" style="padding:1rem;text-align:center;color:#666">No entries yet</td></tr>'
+          : entries.map(e => `
+            <tr style="border-bottom:1px solid #dee2e6">
+              <td style="padding:0.75rem">${e.date}</td>
+              <td style="padding:0.75rem">${e.description}</td>
+              <td style="padding:0.75rem;color:green">${e.DebitAccount ? e.DebitAccount.code + ' - ' + e.DebitAccount.name : '-'}</td>
+              <td style="padding:0.75rem;color:red">${e.CreditAccount ? e.CreditAccount.code + ' - ' + e.CreditAccount.name : '-'}</td>
+              <td style="padding:0.75rem;font-weight:600">${parseFloat(e.amount).toLocaleString()}</td>
+              <td style="padding:0.75rem"><span style="background:#e8f0fe;color:#4361ee;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.8rem">${e.type}</span></td>
+            </tr>`).join('');
+      } catch(err) {
+        console.error('Journal error:', err);
+      }
     }
 
     async function saveJournalEntry() {

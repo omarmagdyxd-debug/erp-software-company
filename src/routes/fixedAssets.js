@@ -58,6 +58,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
 
 router.delete('/:id', authMiddleware, async (req, res) => {
   try {
+    await JournalEntry.destroy({ where: { type: 'asset', relatedId: req.params.id } });
     await FixedAsset.destroy({ where: { id: req.params.id } });
     res.json({ message: 'تم الحذف' });
   } catch (err) {
