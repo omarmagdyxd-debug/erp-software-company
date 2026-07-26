@@ -1099,17 +1099,22 @@ const headers = getHeaders();
     }
 
     async function loadProjectCosts(projectId) {
-      const [costsRes, revenueRes] = await Promise.all([
+      const [costsRes, revenueRes, projectRes] = await Promise.all([
         fetch(`${API}/project-costs/project/${projectId}`, { headers: getHeaders() }),
-        fetch(`${API}/revenue`, { headers: getHeaders() })
+        fetch(`${API}/revenue`, { headers: getHeaders() }),
+        fetch(`${API}/projects/${projectId}`, { headers: getHeaders() })
       ]);
       const costs = await costsRes.json();
       const allRevenue = await revenueRes.json();
+      const project = await projectRes.json();
       const projectRevenue = allRevenue.filter(r => r.projectId == projectId);
 
       const totalCosts = costs.reduce((s,c) => s + parseFloat(c.amount), 0);
       const totalRevenue = projectRevenue.reduce((s,r) => s + parseFloat(r.amount), 0);
       const netProfit = totalRevenue - totalCosts;
+      const partnerShare = parseFloat(project.partnerSharePercentage) || 0;
+      const partnerProfit = netProfit * (partnerShare / 100);
+      const ownerProfit = netProfit - partnerProfit;
 
       document.getElementById('costSummary').innerHTML = `
         <div style="background:#d4edda;padding:1rem;border-radius:8px;border:1px solid #c3e6cb">
@@ -1123,7 +1128,16 @@ const headers = getHeaders();
         <div style="background:${netProfit>=0?'#d4edda':'#f8d7da'};padding:1rem;border-radius:8px;border:1px solid ${netProfit>=0?'#c3e6cb':'#f5c6cb'}">
           <div style="color:${netProfit>=0?'#155724':'#721c24'};font-size:0.85rem">Net Profit</div>
           <div style="font-size:1.5rem;font-weight:600;color:${netProfit>=0?'#155724':'#721c24'}">${netProfit.toLocaleString()}</div>
-        </div>`;
+        </div>
+        ${partnerShare > 0 ? `
+        <div style="background:#fff3e0;padding:1rem;border-radius:8px;border:1px solid #ffe0b2">
+          <div style="color:#b45309;font-size:0.85rem">Partner Share (${partnerShare}%)</div>
+          <div style="font-size:1.5rem;font-weight:600;color:#b45309">${partnerProfit.toLocaleString()}</div>
+        </div>
+        <div style="background:#e8f0fe;padding:1rem;border-radius:8px;border:1px solid #c5d8f8">
+          <div style="color:#3451d1;font-size:0.85rem">Owner Profit</div>
+          <div style="font-size:1.5rem;font-weight:600;color:#3451d1">${ownerProfit.toLocaleString()}</div>
+        </div>` : ''}`;
 
       document.getElementById('costsTable').innerHTML = costs.length === 0
         ? '<tr><td colspan="6" style="padding:1rem;text-align:center;color:#666">No costs yet</td></tr>'
