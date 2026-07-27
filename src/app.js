@@ -19,6 +19,7 @@ const FixedAsset = require('./models/FixedAsset');
 const PartnerTransaction = require('./models/PartnerTransaction');
 const Installment = require('./models/Installment');
 const ProjectCost = require('./models/ProjectCost');
+const userRoutes = require('./routes/users');
 
 JournalEntry.belongsTo(Account, { as: 'DebitAccount', foreignKey: 'debitAccountId' });
 JournalEntry.belongsTo(Account, { as: 'CreditAccount', foreignKey: 'creditAccountId' });
@@ -73,6 +74,7 @@ app.use('/api/partner-account', partnerAccountRoutes);
 app.use('/api/journal-entries', journalRoutes);
 app.use('/api/installments', installmentRoutes);
 app.use('/api/project-costs', projectCostRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'ERP Software Company API is running' });
